@@ -1,3 +1,5 @@
+use std::hint::black_box;
+
 use clap::{Parser, ValueEnum};
 
 fn main() {
@@ -55,15 +57,22 @@ fn recurse_without_local(remaining: usize, use_stacker: UseStacker) {
     if remaining > 0 {
         recurse(remaining - 1, use_stacker, recurse_without_local);
     }
+
+    // Attempt to ensure that the tail call doesn't get optimized out.
+    black_box(());
 }
 
 fn recurse_with_large_local(remaining: usize, use_stacker: UseStacker) {
     let array = [0u8; 1024];
     // Attempt to ensure that array doesn't get optimized out.
-    std::hint::black_box(array);
+    black_box(array);
+
     if remaining > 0 {
         recurse(remaining - 1, use_stacker, recurse_with_large_local);
     }
+
+    // Attempt to ensure that the tail call doesn't get optimized out.
+    black_box(());
 }
 
 #[derive(Debug, Parser)]
